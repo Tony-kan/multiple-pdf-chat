@@ -8,11 +8,9 @@ from langchain_openai import OpenAIEmbeddings,ChatOpenAI
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain.memory import ConversationBufferMemory
-from langchain.chains import (
-    create_history_aware_retriever,
-    create_retrieval_chain,
-)
- 
+from langchain.chains import create_history_aware_retriever,create_retrieval_chain
+    
+
 
 
 def get_pdf_text(pdf_docs):
@@ -34,8 +32,8 @@ def get_text_chunks(text):
     return chunks
     
 def  get_vectorstore(text_chunks):
-    # embeddings = OpenAIEmbeddings() # OpenAI Embeddings
-    embeddings = HuggingFaceBgeEmbeddings(model_name="hkunlp/instructor-xl")
+    embeddings = OpenAIEmbeddings() # OpenAI Embeddings
+    # embeddings = HuggingFaceBgeEmbeddings(model_name="hkunlp/instructor-xl")
     vectorstore =FAISS.from_texts(texts=text_chunks,embedding=embeddings)
     return vectorstore
 
@@ -52,6 +50,12 @@ def get_conversation_chain(vectorstore):
 def main():
     load_dotenv()
     st.set_page_config(page_title="Chat with multiple PDFs",page_icon=":books")
+
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = None
+
+
+
     st.header("Chat with multiple PDFs :books:")
     st.text_input("Ask a question about your documents:")
 
@@ -72,6 +76,8 @@ def main():
 
                 # create a conversation chain
                 st.session_state.conversation = get_conversation_chain(vectorstore)
+
+    st.session_state.conversation
 
 if __name__  == "__main__":
     main()
